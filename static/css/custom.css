@@ -1,0 +1,10 @@
+aside                    { text-align: center; } 
+header.header            { padding-top: 41px; } 
+header.header .subheader { margin-top: 1em; } 
+header .subheader        { background-color: #EEE; padding: 1em; 
+                           border: 1px solid #CCC; border-radius: 0.3em;     
+                           margin-bottom: 1em; }
+header .subheader h1     { margin-bottom: 0; } 
+header .flashes          { margin-top: 0; margin-bottom: 0; }
+header .flashes .alert   { margin-top: 0.5em; margin-bottom: 0.5em; }
+ul.nav li.disabled       { font-style: italic; }

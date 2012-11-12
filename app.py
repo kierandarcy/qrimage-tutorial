@@ -1,12 +1,55 @@
+import os.path
+import uuid
+
 from flask import Flask, render_template, request, abort
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import Form, URL, Required
 from flask.ext.wtf.html5 import URLField
 
+import qrcode
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my_very_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+                      'sqlite:///%s' % os.path.join(app.root_path, 'qrimage.db')
 
+db = SQLAlchemy(app)
 bootstrap = Bootstrap(app)
+
+# Models
+qrcodes = db.Table('qrcodes',
+    db.Column('user_id',   db.Integer, db.ForeignKey('user.id')),
+    db.Column('qrcode_id', db.Integer, db.ForeignKey('qrcode.id'))
+    )
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.Unicode, unique=True)
+    name = db.Column(db.Unicode)
+    qrcodes = db.relationship('Qrcode', secondary=qrcodes,
+                              backref=db.backref('users', lazy='dynamic'))
+
+    def __init__(self, username, name):
+        self.username = username
+        self.name = name
+
+class Qrcode(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Unicode, unique=True)
+    filename = db.Column(db.Unicode, unique=True)
+    #users: This is an implied column
+    
+    def __init__(self, content):
+        self.content = content
+        self.filename = u'%s.png' % uuid.uuid4()
+        self.save_image_file()
+
+    def save_image_file(self):
+        full_filename = os.path.join(app.instance_path, self.filename)
+        if not os.path.exists(full_filename):
+            img = qrcode.make(self.content)
+            img.save(full_filename)
 
 # Forms
 class CreateForm(Form):

@@ -1,6 +1,13 @@
 {% extends "bootstrap_responsive.html" %}
 
 {% set title = 'Qrimage' %}
+{% set navigation_bar = [
+    ('home', 'Home'),
+    ('coffee', 'Brew some coffee'),
+    ('create', 'Create a QR code'),
+] -%}
+
+{% set active_page = active_page|default('home') -%}
 
 {% block style %}
     {{ super() }}
@@ -8,7 +15,42 @@
           rel="stylesheet">
 {% endblock %}
 
+{% block style_navbar_padding %}
+{% endblock %}
+
 {% block body_content %}
+    {% block navbar %}
+        <div class="navbar navbar-fixed-top navbar-inverse">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" 
+                       data-target=".nav-collapse">
+                    {%- for line in navigation_bar %}
+                        <span class="icon-bar"></span>
+                    {%- endfor %}
+                    </a>
+
+                    <a class="brand" href="{{ url_for('home') }}">{{ title }}</a>
+                    <div class="nav-collapse">
+                        <ul class="nav">
+                        {%- for view_name, view_title in navigation_bar %}
+                            <li class="
+                                {%- if view_name == active_page %}active{% endif -%}
+                                ">
+                                <a href="{{ url_for(view_name) }}">{{ view_title }}</a>
+                            </li>
+                        {%- endfor %}
+
+                            <li>
+                                <a href="{{ url_for('login', next=url_for(active_page)) }}">Log in</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
     <header class="header">
         {% block header %}
         {% endblock %}

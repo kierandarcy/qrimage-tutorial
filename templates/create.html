@@ -28,6 +28,14 @@
                     </a>
                 </p>
             {% endif %}
+
+            <h3>
+                {% if current_user.is_authenticated() %}
+                    View your saved QR codes
+                {% else %}
+                    <a href="{{ url_for('login', next=url_for('create')) }}">Log in</a> to save your QR codes
+                {% endif %}
+            </h3>
         </aside>
     </div>
 {% endblock %}

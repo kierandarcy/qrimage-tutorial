@@ -8,3 +8,8 @@
         <p class="lead">Log in to get extra features.</p>
     </div>
 {% endblock %}
+
+{% block content %}
+    {{ wtf.quick_form(form, action=url_for('login', next=request.args.get('next')), 
+                      buttons = [('submit', 'primary', 'Login')]) }}
+{% endblock %}

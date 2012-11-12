@@ -2,10 +2,11 @@ import os.path
 import uuid
 
 from flask import Flask, render_template, request, abort, session, g,\
-                  send_from_directory
+                  send_from_directory, flash, redirect
+from flask.ext.login import LoginManager, login_user, UserMixin, current_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bootstrap import Bootstrap
-from flask.ext.wtf import Form, URL, Required
+from flask.ext.wtf import Form, URL, Required, TextField
 from flask.ext.wtf.html5 import URLField
 
 import qrcode
@@ -18,13 +19,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 db = SQLAlchemy(app)
 bootstrap = Bootstrap(app)
 
+login_manager = LoginManager()
+login_manager.setup_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
 # Models
 qrcodes = db.Table('qrcodes',
     db.Column('user_id',   db.Integer, db.ForeignKey('user.id')),
     db.Column('qrcode_id', db.Integer, db.ForeignKey('qrcode.id'))
     )
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Unicode, unique=True)
     name = db.Column(db.Unicode)
@@ -34,6 +43,9 @@ class User(db.Model):
     def __init__(self, username, name):
         self.username = username
         self.name = name
+
+    def get_id(self):
+        return unicode(self.id)
 
 class Qrcode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,6 +69,9 @@ class CreateForm(Form):
     url = URLField(u'Enter a URL', validators=[Required(),
                    URL(message=u'Please enter a well-formed URL')],
                    description=u'Create a QR code from this URL')
+
+class LoginForm(Form):
+    username = TextField(u'Enter your user name', validators=[Required(),])
 
 def process_qrcode(content):
     # Remove any previously saved QR objects from the current session
@@ -113,9 +128,23 @@ def last_image(download=None):
                                    as_attachment=download == '+' or False)
     abort(403)
 
-@app.route('/login')
+@app.route('/login', methods=['GET','POST'])
 def login():
-    return render_template('login.html')
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if login_user(user):
+                flash('You were logged in as %s' % current_user.name, 'success')
+                if g.last_image:
+                    g.last_image.users.append(user)
+                    db.session.commit()
+                    flash("We added the last QR code you made to your saved list.\
+                    You're welcome.", 'info')
+                return redirect(request.args.get('next') or url_for('home'))
+            flash('Sorry, you could not be logged in.', 'error')
+        flash('Sorry, we could not find that user.', 'warning')
+    return render_template('login.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)

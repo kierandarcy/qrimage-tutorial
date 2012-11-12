@@ -8,3 +8,17 @@
         <p class="lead">Create a QR code image for the URL you enter below</p>
     </div>
 {% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="span8">
+            {{ wtf.quick_form(form, buttons = [('submit', 'primary', 'Create')]) }}
+        </div>
+
+        <aside class="span4">
+            {% if show_last_image %}
+                <p>You just created a QR code. Show it here.</p>
+            {% endif %}
+        </aside>
+    </div>
+{% endblock %}

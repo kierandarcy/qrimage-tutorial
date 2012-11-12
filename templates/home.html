@@ -1,12 +1,39 @@
 {% extends "base.html" %}
 
 {% block header %}
-    <h1>Qrimage</h1>
-    <p>
-        Qrimage as a web application written in 
-        <a href="http://www.python.org">Python</a> using 
-        <a href="http://flask.pocoo.org">Flask</a> for a 
-        <a href="http://pythonnortheast.co.uk">Python North East</a>
-        user group talk.
-    </p>
+    <div class="hero-unit">
+        <div class="container">
+            <h1>Qrimage</h1>
+            <p>
+                Qrimage as a web application written in 
+                <a href="http://www.python.org">Python</a> using 
+                <a href="http://flask.pocoo.org">Flask</a> for a 
+                <a href="http://pythonnortheast.co.uk">Python North East</a>
+                user group talk.
+            </p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <aside class="span4">
+            <h2>Brew some coffee</h2>
+            <p>Want something pointless in your life? Find out what 
+            <em>should</em> happen when you attempt to brew coffee online</p>
+        </aside>
+
+        <aside class="span4">
+            <h2>Create a QR image</h2> 
+            <p>
+                The whole purpose of this example site is to produce QR images. 
+                You can do that here.
+            </p>
+        </aside>
+
+        <aside class="span4">
+            <h2>Log in</h2>
+            <p>Log in to get more features</p>
+        </aside>
+    </div>
 {% endblock %}

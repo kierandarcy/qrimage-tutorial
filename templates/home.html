@@ -10,6 +10,12 @@
                 <a href="http://flask.pocoo.org">Flask</a> for a 
                 <a href="http://pythonnortheast.co.uk">Python North East</a>
                 user group talk.
+                <img class="pull-right hidden-phone" src="{{ url_for('static', filename='img/logo.png') }}" width="200">
+            </p>
+            <p>
+                <a class="btn btn-primary btn-large" 
+                   href="{{ url_for('create') }}" 
+                   title="Create a QR image">Create a QR image &raquo;</a>
             </p>
         </div>
     </div>
@@ -18,21 +24,25 @@
 {% block content %}
     <div class="row">
         <aside class="span4">
-            <h2>Brew some coffee</h2>
+            <h2><a href="{{ url_for('coffee') }}">Brew</a> some coffee</h2>
             <p>Want something pointless in your life? Find out what 
-            <em>should</em> happen when you attempt to brew coffee online</p>
+            <em>should</em> happen when you attempt to 
+            <a href="{{ url_for('coffee') }}"> brew coffee</a> online</p>
         </aside>
 
         <aside class="span4">
-            <h2>Create a QR image</h2> 
+            <h2>
+                <a href="{{ url_for('create') }}" title="Create a QR image">
+                Create</a> a QR image
+            </h2> 
             <p>
                 The whole purpose of this example site is to produce QR images. 
-                You can do that here.
+                You can do that <a href="{{ url_for('create') }}">here</a>.
             </p>
         </aside>
 
         <aside class="span4">
-            <h2>Log in</h2>
+            <h2><a href="{{ url_for('login') }}" class="btn btn-primary">Log in</a></h2>
             <p>Log in to get more features</p>
         </aside>
     </div>

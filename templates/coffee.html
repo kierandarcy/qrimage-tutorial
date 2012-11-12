@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% set title = 'Coffee' %}
+
+{% block header %}
+    <div class="container subheader">
+        <h1>Need a coffee?</h1>
+        <p class="lead">Select none, one, or more of the options below before brewing your coffee</p>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <form action="{{ url_for('coffee') }}" method="post" class="form form-horizontal">
+        <div class="control-group">
+            {% with options = ('Milk','Sugar','Stronger','Irish') %}
+                {% for option in options %}
+                    <label class="checkbox" for="{{ option|lower }}">
+                        <input type="checkbox" id="{{ option|lower }}" 
+                               name="{{ option|lower }}">
+                        {{ option }}
+                    </label>
+                {% endfor %}
+            {% endwith %}
+        </div>
+  
+        <div class="form-actions">
+            <input type="submit" value="Brew" class="btn btn-primary">
+        </div>
+    </form>
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, abort
 from flask.ext.bootstrap import Bootstrap
 
 app = Flask(__name__)
@@ -9,8 +9,10 @@ bootstrap = Bootstrap(app)
 def home():
     return render_template('home.html')
 
-@app.route('/brew-coffee/')
+@app.route('/brew-coffee/', methods=['GET','POST'])
 def coffee():
+    if request.method == 'POST':
+        abort(418)
     return render_template('coffee.html')
 
 @app.route('/create-qrcode/')

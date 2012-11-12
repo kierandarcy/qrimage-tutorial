@@ -1,7 +1,8 @@
 import os.path
 import uuid
 
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template, request, abort, session, g,\
+                  send_from_directory
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import Form, URL, Required
@@ -57,6 +58,32 @@ class CreateForm(Form):
                    URL(message=u'Please enter a well-formed URL')],
                    description=u'Create a QR code from this URL')
 
+def process_qrcode(content):
+    # Remove any previously saved QR objects from the current session
+    session.pop('last_image_id', None)
+    g.last_image = None
+    
+    # Find an existing QR code object or create a new one
+    qr = Qrcode.query.filter_by(content=content).first()
+    if not qr:
+        qr = Qrcode(content)
+        db.session.add(qr)
+
+    # Create (or recreate if necessary) an image file for the QR code and assign
+    # it to the current user (if they're logged in).
+    qr.save_image_file()
+
+    # Commit any changes to the database (to ensure we have ID values)
+    db.session.commit()
+
+    # Populate the session with this QR image
+    session['last_image_id'] = qr.id
+    g.last_image = qr
+
+@app.before_request
+def before_request():
+    g.last_image = Qrcode.query.get(session.get('last_image_id', 0))
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -71,8 +98,20 @@ def coffee():
 def create():
     form = CreateForm()
     if form.validate_on_submit():
+        process_qrcode(form.url.data)
         return render_template('create.html', form=form, show_last_image=True)
     return render_template('create.html', form=form)
+
+@app.route('/most-recent/qrcode.png')
+@app.route('/most-recent/qrcode.png<download>')
+def last_image(download=None):
+    if g.last_image:
+        return send_from_directory(app.instance_path, g.last_image.filename, 
+                                   cache_timeout=0,
+                                   mimetype='image/png',
+                                   attachment_filename='qrcode.png',
+                                   as_attachment=download == '+' or False)
+    abort(403)
 
 @app.route('/login')
 def login():

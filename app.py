@@ -2,8 +2,9 @@ import os.path
 import uuid
 
 from flask import Flask, render_template, request, abort, session, g,\
-                  send_from_directory, flash, redirect
-from flask.ext.login import LoginManager, login_user, UserMixin, current_user
+                  send_from_directory, flash, redirect, url_for
+from flask.ext.login import LoginManager, login_user, UserMixin, current_user,\
+                            login_required, logout_user
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.wtf import Form, URL, Required, TextField
@@ -128,6 +129,23 @@ def last_image(download=None):
                                    as_attachment=download == '+' or False)
     abort(403)
 
+@app.route('/my-qrcodes/')
+@login_required
+def user_images():
+    return render_template('user_images.html')
+
+@app.route('/my-qrcodes/<int:id>/qrcode.png')
+@app.route('/my-qrcodes/<int:id>/qrcode.png<download>')
+@login_required
+def user_image(id, download=None):
+    qr = Qrcode.query.get(id)
+    if qr in current_user.qrcodes:
+        return send_from_directory(app.instance_path, qr.filename, 
+                                   mimetype='image/png',
+                                   attachment_filename='qrcode.png',
+                                   as_attachment=download == '+' or False)
+    abort(404)
+
 @app.route('/login', methods=['GET','POST'])
 def login():
     form = LoginForm()
@@ -145,6 +163,14 @@ def login():
             flash('Sorry, you could not be logged in.', 'error')
         flash('Sorry, we could not find that user.', 'warning')
     return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    session.pop('last_image_id', None)
+    g.last_image = None
+    logout_user()
+    flash('You were logged out.', 'info')
+    return redirect(request.args.get('next') or url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)

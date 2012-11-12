@@ -3,9 +3,10 @@
 
 {% set title = 'Qrimage' %}
 {% set navigation_bar = [
-    ('home', 'Home'),
-    ('coffee', 'Brew some coffee'),
-    ('create', 'Create a QR code'),
+    ('home', 'Home', False),
+    ('coffee', 'Brew some coffee', False),
+    ('create', 'Create a QR code', False),
+    ('user_images', 'Saved QR codes', True),
 ] -%}
 
 {% set active_page = active_page|default('home') -%}
@@ -34,17 +35,26 @@
                     <a class="brand" href="{{ url_for('home') }}">{{ title }}</a>
                     <div class="nav-collapse">
                         <ul class="nav">
-                        {%- for view_name, view_title in navigation_bar %}
+                        {%- for view_name, view_title, protected in navigation_bar %}
                             <li class="
                                 {%- if view_name == active_page %}active{% endif -%}
+                                {%- if protected and not current_user.is_authenticated() %}disabled{% endif -%}
                                 ">
                                 <a href="{{ url_for(view_name) }}">{{ view_title }}</a>
                             </li>
                         {%- endfor %}
 
+                        {%- if current_user.is_authenticated() %}
+                            <li>
+                                <a href="{{ url_for('logout', next=url_for(active_page)) }}">
+                                    Log out {{ current_user.name }}
+                                </a>
+                            </li>
+                        {%- else %}
                             <li>
                                 <a href="{{ url_for('login', next=url_for(active_page)) }}">Log in</a>
                             </li>
+                        {%- endif %}
                         </ul>
                     </div>
                 </div>
@@ -78,4 +88,8 @@
         {% block content %}
         {% endblock %}
     </section>
+{% endblock %}
+
+{% block favicons %}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 {% endblock %}

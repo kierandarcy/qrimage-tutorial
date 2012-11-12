@@ -43,7 +43,7 @@
 
         <aside class="span4">
             {% if current_user.is_authenticated() %}
-                <h2>View saved QR codes</h2>
+                <h2><a href="{{ url_for('user_images') }}">View</a> saved QR codes</h2>
                 <p>View your previously saved QR codes.</p>
             {% else %}
                 <h2><a href="{{ url_for('login') }}" class="btn btn-primary">Log in</a></h2>

@@ -31,7 +31,7 @@
 
             <h3>
                 {% if current_user.is_authenticated() %}
-                    View your saved QR codes
+                    <a href="{{ url_for('user_images') }}">View</a> your saved QR codes
                 {% else %}
                     <a href="{{ url_for('login', next=url_for('create')) }}">Log in</a> to save your QR codes
                 {% endif %}

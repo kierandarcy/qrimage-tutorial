@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% set active_page = 'user_images' %}
+
+{% block header %}
+    <div class="container subheader">
+        <h1>My QR Codes</h1>
+        <p class="lead">The QR code images you have already created</p>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% with qrcodes = current_user.qrcodes %}
+        {% if qrcodes %}
+            <ul class="thumbnails">
+                {% for qrcode in qrcodes %}
+                    <li class="span4">
+                        <div class="thumbnail">
+                            <img src="{{ url_for('user_image', id=qrcode.id) }}"
+                                 title="QR code for {{ qrcode.content }}" 
+                                 width="200">
+                                 
+                            <div class="caption">
+                                <p>{{ qrcode.content }}</p>
+                                
+                                <a href="{{ url_for('user_image', id=qrcode.id, download='+') }}" 
+                                   title="Download QR code for {{ qrcode.content }}" 
+                                   class="btn btn-primary">Download</a>
+                                   
+                                <a href="{{ qrcode.content }}" 
+                                   title="{{ qrcode.content }}" 
+                                   class="btn">Visit target</a>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <h2>
+                You have no saved QR code images yet :( 
+            </h2>
+            <a href="{{ url_for('create') }}" class="btn btn-primary btn-large">
+               Make one!</a>
+        {% endif %}
+    {% endwith %}
+
+    <h3 class="pull-right">
+        <a href="{{ url_for('create') }}">Create</a> new QR codes
+    </h3>
+{% endblock %}

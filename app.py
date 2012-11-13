@@ -2,7 +2,7 @@ import os.path
 import uuid
 
 from flask import Flask, render_template, request, abort, session, g,\
-                  send_from_directory, flash, redirect, url_for
+                  send_from_directory, flash, redirect, url_for, after_this_request
 from flask.ext.login import LoginManager, login_user, UserMixin, current_user,\
                             login_required, logout_user
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -100,6 +100,11 @@ def process_qrcode(content):
 def before_request():
     g.last_image = Qrcode.query.get(session.get('last_image_id', 0))
 
+@app.after_request
+def after_request(response):
+    response.headers['X-Python-North-East'] = 'Pizza Fueled Awesomeness!'
+    return response
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -171,6 +176,22 @@ def logout():
     logout_user()
     flash('You were logged out.', 'info')
     return redirect(request.args.get('next') or url_for('home'))
+
+@app.errorhandler(404)
+def resource_missing(error):
+    return render_template('errors.html', error=error), 404
+
+@app.errorhandler(401)
+def resource_forbidden(error):
+    return render_template('errors.html', error=error), 401
+
+@app.errorhandler(418)
+def i_am_a_teapot(error):
+    @after_this_request
+    def after_request(response):
+        response.headers['X-Biscuits'] = 'Rich Tea Please'
+        return response
+    return render_template('errors.html', error=error), 418
 
 if __name__ == '__main__':
     app.run(debug=True)

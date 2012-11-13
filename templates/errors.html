@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% set title = '{{ error.code }} error' %}
+
+{% block header %}
+    <div class="container subheader">
+        <h1>{{ error.code }} - Sorry, this resource is unavailable.</h1>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="alert alert-block alert-error">
+        <h4>You got a {{ error.code }} error</h4>
+        <hr>
+        <p>{{ error.description|safe }}</p>
+    </div>
+
+    <p>
+        You might like to create your own QR code. 
+        You can do that <a href="{{ url_for('create') }}">here</a>.
+    </p>
+{% endblock %}
